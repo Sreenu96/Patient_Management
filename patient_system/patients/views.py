@@ -1,35 +1,37 @@
-# from django.shortcuts import render
-
-# Create your views here.
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.hashers import make_password, check_password
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Patient
 
-def register(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = make_password(request.POST['password'])
-
-        # Save to database
-        Patient.objects.create(username=username, password=password)
-        return redirect('login')
-
-    return render(request, 'patients/register.html')
-
-def login(request):
+# Create
+def create_patient(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        email = request.POST['email']
+        
+        # Create and save the patient
+        Patient.objects.create(username=username, password=password, email=email)
+        return redirect('read_patients')
+    return render(request, 'patients/create_patient.html')
 
-        # Check user in the database
-        try:
-            patient = Patient.objects.get(username=username)
-            if check_password(password, patient.password):
-                return render(request, 'patients/welcome.html', {'patient': patient})
-            else:
-                return render(request, 'patients/login.html', {'error': 'Invalid password'})
-        except Patient.DoesNotExist:
-            return render(request, 'patients/login.html', {'error': 'User does not exist'})
+# Read
+def read_patients(request):
+    patients = Patient.objects.all()
+    return render(request, 'patients/read_patients.html', {'patients': patients})
 
-    return render(request, 'patients/login.html')
+# Update
+def update_patient(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    if request.method == 'POST':
+        patient.username = request.POST['username']
+        patient.email = request.POST['email']
+        patient.save()
+        return redirect('read_patients')
+    return render(request, 'patients/update_patient.html', {'patient': patient})
+
+# Delete
+def delete_patient(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    if request.method == 'POST':
+        patient.delete()
+        return redirect('read_patients')
+    return render(request, 'patients/delete_patient.html', {'patient': patient})

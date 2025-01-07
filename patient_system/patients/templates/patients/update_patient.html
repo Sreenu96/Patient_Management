@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Patient</title>
+</head>
+<body>
+    <h1>Update Patient</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label>Username:</label>
+        <input type="text" name="username" value="{{ patient.username }}" required><br>
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ patient.email }}" required><br>
+        <button type="submit">Update</button>
+    </form>
+    <a href="{% url 'read_patients' %}">Back to Patients List</a>
+</body>
+</html>
